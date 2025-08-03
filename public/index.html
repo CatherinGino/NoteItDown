@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoteItDown - Your Personal Notes App</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='10' y='15' width='70' height='70' rx='8' fill='%23fef3c7' stroke='%23f59e0b' stroke-width='2'/%3E%3Cpath d='M20 30h50M20 40h45M20 50h50M20 60h40' stroke='%23374151' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M75 10L85 20L75 30L65 20Z' fill='%23ef4444'/%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect x='10' y='15' width='70' height='70' rx='8' fill='%23fef3c7' stroke='%23f59e0b' stroke-width='2'/%3E%3Cpath d='M20 30h50M20 40h45M20 50h50M20 60h40' stroke='%23374151' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M75 10L85 20L75 30L65 20Z' fill='%23ef4444'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Auth Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <div class="auth-container">
+                <h2 id="authTitle">Welcome to NoteItDown</h2>
+                <div class="auth-tabs">
+                    <button class="tab-btn active" onclick="showLogin()">Login</button>
+                    <button class="tab-btn" onclick="showRegister()">Register</button>
+                </div>
+                
+                <form id="loginForm" class="auth-form">
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="loginEmail" placeholder="Email" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="loginPassword" placeholder="Password" required>
+                    </div>
+                    <button type="submit" class="auth-btn">Login</button>
+                </form>
+                
+                <form id="registerForm" class="auth-form hidden">
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="registerUsername" placeholder="Username" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="registerEmail" placeholder="Email" required>
+                    </div>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="registerPassword" placeholder="Password" required>
+                    </div>
+                    <button type="submit" class="auth-btn">Register</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" class="hidden">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <div class="app-logo">
+                    <i class="fas fa-sticky-note"></i>
+                </div>
+                <h1>NoteItDown</h1>
+            </div>
+            <div class="header-right">
+                <button id="themeToggle" class="icon-btn" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="addNoteBtn" class="add-btn">
+                    <i class="fas fa-plus"></i> New Note
+                </button>
+                <div class="user-menu">
+                    <button id="userMenuBtn" class="icon-btn">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <div id="userDropdown" class="dropdown hidden">
+                        <button id="profileBtn">
+                            <i class="fas fa-user-circle"></i> Profile
+                        </button>
+                        <button onclick="confirmLogout()">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Notes Container -->
+        <main class="notes-container" id="notesContainer">
+            <!-- Notes will be dynamically added here -->
+        </main>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal hidden">
+        <div class="modal-content profile-modal">
+            <div class="profile-header">
+                <h2><i class="fas fa-user-circle"></i> My Profile</h2>
+                <button class="close-btn" onclick="closeProfile()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="profile-content">
+                <div class="profile-avatar">
+                    <div class="avatar-circle" id="profileAvatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="avatar-upload">
+                        <input type="file" id="profileImageInput" accept="image/*" style="display: none;">
+                        <button class="upload-btn" onclick="document.getElementById('profileImageInput').click()">
+                            <i class="fas fa-camera"></i> Change Photo
+                        </button>
+                        <button class="remove-btn" id="removeImageBtn" onclick="removeProfileImage()" style="display: none;">
+                            <i class="fas fa-trash"></i> Remove
+                        </button>
+                    </div>
+                </div>
+                <div class="profile-info">
+                    <div class="info-item">
+                        <label>Username</label>
+                        <span id="profileUsername">Loading...</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Email</label>
+                        <span id="profileEmail">Loading...</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Member Since</label>
+                        <span id="profileJoinDate">Loading...</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Total Notes</label>
+                        <span id="profileNoteCount">0</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Current Theme</label>
+                        <span id="profileTheme">Light</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emoji Picker Modal -->
+    <div id="emojiModal" class="modal hidden">
+        <div class="modal-content emoji-modal">
+            <div class="emoji-header">
+                <h3>Choose an Emoji 😊</h3>
+                <button class="close-btn" onclick="closeEmojiPicker()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="emoji-categories">
+                <button class="emoji-category active" data-category="smileys">😀</button>
+                <button class="emoji-category" data-category="nature">🌿</button>
+                <button class="emoji-category" data-category="objects">💡</button>
+                <button class="emoji-category" data-category="symbols">❤️</button>
+            </div>
+            <div class="emoji-grid" id="emojiGrid">
+                <!-- Emojis will be populated here -->
+            </div>
+            <div class="emoji-tip">
+                💡 <strong>Tip:</strong> Right-click or double-click on note content to add emojis there too!
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal hidden">
+        <div class="modal-content delete-modal">
+            <div class="delete-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3>Delete Note? 🗑️</h3>
+            <p>This note will be permanently deleted and cannot be recovered.</p>
+            <div class="delete-actions">
+                <button class="cancel-btn" onclick="closeDeleteConfirmation()">
+                    <i class="fas fa-times"></i> Keep Note
+                </button>
+                <button class="confirm-delete-btn" id="confirmDeleteBtn">
+                    <i class="fas fa-trash"></i> Delete Forever
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
