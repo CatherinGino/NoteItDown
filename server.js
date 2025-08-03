@@ -30,19 +30,19 @@ mongoose.connect(process.env.MONGODB_URI, {
   retryWrites: true,
   w: 'majority'
 })
-.then(() => {
-  console.log('✅ Connected to MongoDB Atlas successfully!');
-  console.log('Database:', mongoose.connection.name);
-})
-.catch((error) => {
-  console.error('❌ MongoDB Atlas connection error:', error.message);
-  console.log('Please check:');
-  console.log('1. Your IP address is whitelisted in MongoDB Atlas Network Access');
-  console.log('2. Your MongoDB credentials are correct');
-  console.log('3. Your internet connection is stable');
-  console.log('4. The cluster is running and accessible');
-  process.exit(1);
-});
+  .then(() => {
+    console.log('✅ Connected to MongoDB Atlas successfully!');
+    console.log('Database:', mongoose.connection.name);
+  })
+  .catch((error) => {
+    console.error('❌ MongoDB Atlas connection error:', error.message);
+    console.log('Please check:');
+    console.log('1. Your IP address is whitelisted in MongoDB Atlas Network Access');
+    console.log('2. Your MongoDB credentials are correct');
+    console.log('3. Your internet connection is stable');
+    console.log('4. The cluster is running and accessible');
+    process.exit(1);
+  });
 
 // MongoDB connection event listeners
 mongoose.connection.on('connected', () => {
@@ -106,53 +106,65 @@ const authenticateToken = (req, res, next) => {
 app.post('/api/register', async (req, res) => {
   try {
     console.log('Registration attempt:', req.body);
+    console.log('MongoDB connection state:', mongoose.connection.readyState);
+    console.log('Environment check - JWT_SECRET exists:', !!process.env.JWT_SECRET);
+
     const { username, email, password } = req.body;
-    
+
     if (!username || !email || !password) {
+      console.log('Missing required fields');
       return res.status(400).json({ error: 'All fields are required' });
     }
-    
+
     // Check if user already exists
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) {
+      console.log('User already exists:', email);
       return res.status(400).json({ error: 'User with this email or username already exists' });
     }
-    
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    
+
     const user = new User({ username, email, password: hashedPassword });
     await user.save();
     console.log('User created successfully:', user._id);
-    
+
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'your-secret-key');
     res.json({ token, user: { id: user._id, username, email, theme: user.theme, profileImage: user.profileImage } });
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(400).json({ error: error.message });
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ error: 'Registration failed. Please try again.' });
   }
 });
 
 app.post('/api/login', async (req, res) => {
   try {
     console.log('Login attempt:', req.body.email);
+    console.log('MongoDB connection state:', mongoose.connection.readyState);
+
     const { email, password } = req.body;
-    
+
     if (!email || !password) {
+      console.log('Missing email or password');
       return res.status(400).json({ error: 'Email and password are required' });
     }
-    
+
     const user = await User.findOne({ email });
-    
+    console.log('User found:', !!user);
+
     if (!user || !await bcrypt.compare(password, user.password)) {
+      console.log('Invalid credentials for:', email);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
-    
+
     console.log('Login successful for user:', user._id);
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'your-secret-key');
     res.json({ token, user: { id: user._id, username: user.username, email, theme: user.theme, profileImage: user.profileImage } });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(400).json({ error: error.message });
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ error: 'Login failed. Please try again.' });
   }
 });
 
@@ -169,10 +181,10 @@ app.post('/api/notes', authenticateToken, async (req, res) => {
   try {
     console.log('Creating note for user:', req.user.userId);
     console.log('Note data:', req.body);
-    
+
     const note = new Note({ ...req.body, userId: req.user.userId });
     await note.save();
-    
+
     console.log('Note created successfully:', note._id);
     res.json(note);
   } catch (error) {
@@ -220,30 +232,30 @@ app.put('/api/user/profile-image', authenticateToken, async (req, res) => {
   try {
     console.log('Profile image update request received');
     const { profileImage } = req.body;
-    
+
     // Basic validation for base64 image
     if (profileImage && !profileImage.startsWith('data:image/')) {
       console.log('Invalid image format:', profileImage?.substring(0, 50));
       return res.status(400).json({ error: 'Invalid image format' });
     }
-    
+
     // Check image size (base64 is ~33% larger than original)
     if (profileImage && profileImage.length > 3 * 1024 * 1024) { // ~2MB original
       console.log('Image too large:', profileImage.length);
       return res.status(400).json({ error: 'Image too large' });
     }
-    
+
     console.log('Updating user profile image for user:', req.user.userId);
     const user = await User.findByIdAndUpdate(
       req.user.userId,
       { profileImage },
       { new: true }
     );
-    
+
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-    
+
     console.log('Profile image updated successfully');
     res.json({ profileImage: user.profileImage });
   } catch (error) {
