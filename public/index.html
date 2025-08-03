@@ -70,8 +70,11 @@
                     <i class="fas fa-plus"></i> New Note
                 </button>
                 <div class="user-menu">
-                    <button id="userMenuBtn" class="icon-btn">
-                        <i class="fas fa-user"></i>
+                    <button id="userMenuBtn" class="user-menu-btn">
+                        <div class="header-avatar" id="headerAvatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <span class="username-display" id="headerUsername">User</span>
                     </button>
                     <div id="userDropdown" class="dropdown hidden">
                         <button id="profileBtn">
@@ -116,9 +119,25 @@
                     </div>
                 </div>
                 <div class="profile-info">
-                    <div class="info-item">
+                    <div class="info-item editable-item">
                         <label>Username</label>
-                        <span id="profileUsername">Loading...</span>
+                        <div class="editable-field">
+                            <span id="profileUsername">Loading...</span>
+                            <button class="edit-btn" onclick="editUsername()" title="Edit Username">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </div>
+                        <div class="edit-form hidden" id="usernameEditForm">
+                            <input type="text" id="usernameInput" placeholder="Enter new username" maxlength="20">
+                            <div class="edit-actions">
+                                <button class="save-btn" onclick="saveUsername()">
+                                    <i class="fas fa-check"></i> Save
+                                </button>
+                                <button class="cancel-btn" onclick="cancelUsernameEdit()">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     <div class="info-item">
                         <label>Email</label>

@@ -264,6 +264,58 @@ app.put('/api/user/profile-image', authenticateToken, async (req, res) => {
   }
 });
 
+app.put('/api/user/username', authenticateToken, async (req, res) => {
+  try {
+    console.log('Username update request received');
+    const { username } = req.body;
+
+    // Validate username
+    if (!username || username.trim().length < 3) {
+      return res.status(400).json({ error: 'Username must be at least 3 characters long' });
+    }
+
+    if (username.trim().length > 20) {
+      return res.status(400).json({ error: 'Username must be less than 20 characters' });
+    }
+
+    // Check if username already exists (excluding current user)
+    const existingUser = await User.findOne({
+      username: username.trim(),
+      _id: { $ne: req.user.userId }
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ error: 'Username already taken' });
+    }
+
+    console.log('Updating username for user:', req.user.userId);
+    const user = await User.findByIdAndUpdate(
+      req.user.userId,
+      { username: username.trim() },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    console.log('Username updated successfully to:', username.trim());
+    res.json({
+      username: user.username,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        theme: user.theme,
+        profileImage: user.profileImage
+      }
+    });
+  } catch (error) {
+    console.error('Username update error:', error);
+    res.status(500).json({ error: 'Failed to update username' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

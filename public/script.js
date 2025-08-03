@@ -54,6 +54,7 @@ function showAuth() {
 function showApp() {
     authModal.classList.add('hidden');
     app.classList.remove('hidden');
+    updateHeaderProfile();
 }
 
 function showLogin() {
@@ -333,6 +334,7 @@ async function handleProfileImageUpload(event) {
             currentUser.profileImage = data.profileImage;
             localStorage.setItem('user', JSON.stringify(currentUser));
             updateProfileAvatar();
+            updateHeaderProfile(); // Update header avatar
         } else {
             const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
             console.error('Upload error:', response.status, errorData);
@@ -366,6 +368,7 @@ async function removeProfileImage() {
             currentUser.profileImage = null;
             localStorage.setItem('user', JSON.stringify(currentUser));
             updateProfileAvatar();
+            updateHeaderProfile(); // Update header avatar
         } else {
             const error = await response.json();
             alert(error.error || 'Failed to remove image');
@@ -383,6 +386,118 @@ function fileToBase64(file) {
         reader.onload = () => resolve(reader.result);
         reader.onerror = error => reject(error);
     });
+}
+
+// Username editing functions
+function editUsername() {
+    const usernameSpan = document.getElementById('profileUsername');
+    const editForm = document.getElementById('usernameEditForm');
+    const usernameInput = document.getElementById('usernameInput');
+    
+    // Show edit form and hide display
+    usernameSpan.style.display = 'none';
+    editForm.classList.remove('hidden');
+    
+    // Set current username as input value
+    usernameInput.value = currentUser.username;
+    usernameInput.focus();
+    usernameInput.select();
+}
+
+function cancelUsernameEdit() {
+    const usernameSpan = document.getElementById('profileUsername');
+    const editForm = document.getElementById('usernameEditForm');
+    
+    // Hide edit form and show display
+    editForm.classList.add('hidden');
+    usernameSpan.style.display = 'inline';
+}
+
+async function saveUsername() {
+    const usernameInput = document.getElementById('usernameInput');
+    const newUsername = usernameInput.value.trim();
+    
+    // Validate username
+    if (!newUsername) {
+        alert('Username cannot be empty');
+        return;
+    }
+    
+    if (newUsername.length < 3) {
+        alert('Username must be at least 3 characters long');
+        return;
+    }
+    
+    if (newUsername.length > 20) {
+        alert('Username must be less than 20 characters');
+        return;
+    }
+    
+    if (newUsername === currentUser.username) {
+        cancelUsernameEdit();
+        return;
+    }
+    
+    // Show loading state
+    const saveBtn = document.querySelector('.save-btn');
+    const originalText = saveBtn.innerHTML;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    saveBtn.disabled = true;
+    
+    try {
+        const response = await fetch('/api/user/username', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({ username: newUsername })
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            
+            // Update current user data
+            currentUser.username = data.username;
+            localStorage.setItem('user', JSON.stringify(data.user));
+            
+            // Update UI
+            document.getElementById('profileUsername').textContent = data.username;
+            updateHeaderProfile(); // Update header username
+            cancelUsernameEdit();
+            
+            // Show success message
+            alert('Username updated successfully!');
+        } else {
+            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+            alert(errorData.error || 'Failed to update username');
+        }
+    } catch (error) {
+        console.error('Error updating username:', error);
+        alert('Failed to update username. Please try again.');
+    } finally {
+        // Reset loading state
+        saveBtn.innerHTML = originalText;
+        saveBtn.disabled = false;
+    }
+}
+
+// Header profile functions
+function updateHeaderProfile() {
+    if (!currentUser) return;
+    
+    const headerAvatar = document.getElementById('headerAvatar');
+    const headerUsername = document.getElementById('headerUsername');
+    
+    // Update username
+    headerUsername.textContent = currentUser.username;
+    
+    // Update avatar
+    if (currentUser.profileImage) {
+        headerAvatar.innerHTML = `<img src="${currentUser.profileImage}" alt="Profile Picture">`;
+    } else {
+        headerAvatar.innerHTML = '<i class="fas fa-user"></i>';
+    }
 }
 
 // Notes functions

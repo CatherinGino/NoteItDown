@@ -254,6 +254,60 @@ body {
   position: relative;
 }
 
+.user-menu-btn {
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--text-color);
+}
+
+.user-menu-btn:hover {
+  background: var(--border-color);
+  transform: translateY(-1px);
+}
+
+.header-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 0.9rem;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.header-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.username-display {
+  font-weight: 500;
+  font-size: 0.9rem;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-menu-btn:hover .header-avatar {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-lg);
+}
+
 .dropdown {
   position: absolute;
   top: 100%;
@@ -638,6 +692,101 @@ body {
   font-weight: 500;
 }
 
+/* Editable username styles */
+.editable-item {
+  position: relative;
+}
+
+.editable-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.edit-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  opacity: 0;
+}
+
+.editable-item:hover .edit-btn {
+  opacity: 1;
+}
+
+.edit-btn:hover {
+  background: var(--border-color);
+  color: var(--primary-color);
+}
+
+.edit-form {
+  margin-top: 0.5rem;
+  padding: 1rem;
+  background: var(--bg-color);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.edit-form input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--surface-color);
+  color: var(--text-color);
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.edit-form input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.edit-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.save-btn, .cancel-btn {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  transition: all 0.3s ease;
+}
+
+.save-btn {
+  background: var(--primary-color);
+  color: white;
+}
+
+.save-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.cancel-btn {
+  background: var(--border-color);
+  color: var(--text-color);
+}
+
+.cancel-btn:hover {
+  background: var(--text-secondary);
+  color: var(--surface-color);
+}
+
 /* Emoji Modal Styles */
 .emoji-modal {
   max-width: 400px;
@@ -819,6 +968,31 @@ body {
   .upload-btn, .remove-btn {
     font-size: 0.8rem;
     padding: 0.4rem 0.8rem;
+  }
+  
+  .edit-actions {
+    flex-direction: column;
+  }
+  
+  .save-btn, .cancel-btn {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
+  
+  .user-menu-btn {
+    padding: 0.4rem 0.8rem;
+    gap: 0.5rem;
+  }
+  
+  .header-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+  
+  .username-display {
+    font-size: 0.8rem;
+    max-width: 80px;
   }
   
   .emoji-grid {
