@@ -17,7 +17,7 @@ A beautiful, user-friendly notes application with themes, customizable note size
 
 ## 🚀 Live Demo
 
-[View Live Demo](https://your-deployed-app-url.vercel.app)
+[View Live Demo](https://noteitdown-th2n.onrender.com/)
 
 ## 🛠️ Technologies Used
 
