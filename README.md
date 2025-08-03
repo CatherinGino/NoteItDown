@@ -2,7 +2,7 @@
 
 A beautiful, user-friendly notes application with themes, customizable note sizes, and emoji support. Built with Node.js, Express, MongoDB, and vanilla JavaScript.
 
-![NoteItDown Screenshot](https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO_NAME/main/screenshots/app-demo.png)
+![NoteItDown Screenshot](./screenshot.png)
 
 ## ✨ Features
 
